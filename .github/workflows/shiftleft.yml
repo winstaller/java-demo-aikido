@@ -45,15 +45,20 @@ jobs:
       run: |
         curl https://cdn.shiftleft.io/download/sl > ${GITHUB_WORKSPACE}/sl && chmod a+rx ${GITHUB_WORKSPACE}/sl
     - name: Validate Build Rules
+      env:
+        BRANCH: ${{ github.head_ref || steps.extract_branch.outputs.branch }}
+        PR_NUMBER: ${{github.event.number}}
+        PR_USER: ${{ github.repository_owner }}
+        PR_REPO: ${{ github.event.repository.name }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SHIFTLEFT_ACCESS_TOKEN: ${{ secrets.SHIFTLEFT_ACCESS_TOKEN }}
       run: |
         ${GITHUB_WORKSPACE}/sl check-analysis --app shiftleft-java-demo \
-            --branch "${{ github.head_ref || steps.extract_branch.outputs.branch }}" \
+            --branch "$BRANCH" \
             --report \
-            --github-pr-number=${{github.event.number}} \
-            --github-pr-user=${{ github.repository_owner }} \
-            --github-pr-repo=${{ github.event.repository.name }} \
-            --github-token=${{ secrets.GITHUB_TOKEN }}
-      env:
-        SHIFTLEFT_ACCESS_TOKEN: ${{ secrets.SHIFTLEFT_ACCESS_TOKEN }}
+            --github-pr-number=$PR_NUMBER \
+            --github-pr-user=$PR_USER \
+            --github-pr-repo=$PR_REPO \
+            --github-token=$GITHUB_TOKEN
          
   
